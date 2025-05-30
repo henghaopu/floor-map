@@ -85,27 +85,25 @@ const onSceneReady = (
 		advancedTexture.addControl(text);
 	};
 
-	// Create centered clusters of vertical double racks (3 groups, each 3 pairs tall)
+	// Create centered clusters of vertical double racks (3 groups, each 3 pairs tall), with aisle gaps between groups
 	let rackId = 1;
-	const verticalXOffset = rackSize.depth / 2 + 0.3;
-	const verticalZSpacing = rackSize.width + 0.3;
-	const verticalCols = [-verticalXOffset * 3, 0, verticalXOffset * 3];
-	const verticalRows = [-verticalZSpacing, 0, verticalZSpacing];
+	const pairSpacing = rackSize.depth + 0.1;
+	const aisleGap = 2.0; // gap between double rack groups
+	const verticalStartX = -2 * (rackSize.depth + 0.3 + aisleGap); // start far left
 
-	verticalCols.forEach((colX) => {
-		verticalRows.forEach((rowZ) => {
-			createRack(
-				new Vector3(colX - verticalXOffset, 0, rowZ),
-				Math.PI / 2,
-				`rack ${rackId++}`
-			);
-			createRack(
-				new Vector3(colX + verticalXOffset, 0, rowZ),
-				Math.PI / 2,
-				`rack ${rackId++}`
-			);
-		});
-	});
+	for (let group = 0; group < 3; group++) {
+		const groupOffset = group * (pairSpacing + aisleGap);
+
+		for (let row = 0; row < 3; row++) {
+			const xLeft = verticalStartX + groupOffset;
+			const xRight = xLeft + pairSpacing;
+
+			const z = (row - 1) * (rackSize.width + 0.3);
+
+			createRack(new Vector3(xLeft, 0, z), Math.PI / 2, `rack ${rackId++}`);
+			createRack(new Vector3(xRight, 0, z), Math.PI / 2, `rack ${rackId++}`);
+		}
+	}
 
 	// Create bottom horizontal racks (2 rows of 6), spaced by actual rack width
 	const horizontalSpacing = rackSize.width + 0.1;
