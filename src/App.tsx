@@ -40,8 +40,14 @@ const onSceneReady = (
 	const light = new HemisphericLight('light', new Vector3(0, -1, 0), scene);
 	light.intensity = 0.9;
 
-	// Define rack size
-	const rackSize = { width: 1.0, height: 0.25, depth: 0.5 };
+	// Define rack size (Lowe's rack: 4ft wide, 7ft tall, 1.5ft deep)
+	const UNIT = 0.3048; // 1 foot = 0.3048 meters
+	// Rack dimensions in meters
+	const rackSize = {
+		width: 4 * UNIT, // 4 ft wide
+		height: 7 * UNIT, // 7 ft tall
+		depth: 1.5 * UNIT, // 1.5 ft deep
+	};
 
 	// Function to create a rack at a given position
 	const createRack = (position: Vector3, rotationY = 0, label: string) => {
@@ -80,28 +86,44 @@ const onSceneReady = (
 	};
 
 	// Create centered clusters of vertical double racks (3 groups, each 3 pairs tall)
-	const cols = [-2, 0, 2];
-	const rows = [-1.0, 0, 1.0]; // tighter vertical spacing
 	let rackId = 1;
-	cols.forEach((colX) => {
-		rows.forEach((rowZ) => {
+	const verticalXOffset = rackSize.depth / 2 + 0.3;
+	const verticalZSpacing = rackSize.width + 0.3;
+	const verticalCols = [-verticalXOffset * 3, 0, verticalXOffset * 3];
+	const verticalRows = [-verticalZSpacing, 0, verticalZSpacing];
+
+	verticalCols.forEach((colX) => {
+		verticalRows.forEach((rowZ) => {
 			createRack(
-				new Vector3(colX - 0.22, 0, rowZ),
+				new Vector3(colX - verticalXOffset, 0, rowZ),
 				Math.PI / 2,
 				`rack ${rackId++}`
 			);
 			createRack(
-				new Vector3(colX + 0.22, 0, rowZ),
+				new Vector3(colX + verticalXOffset, 0, rowZ),
 				Math.PI / 2,
 				`rack ${rackId++}`
 			);
 		});
 	});
 
-	// Create bottom horizontal racks (2 rows of 6)
+	// Create bottom horizontal racks (2 rows of 6), spaced by actual rack width
+	const horizontalSpacing = rackSize.width + 0.1;
 	for (let i = 0; i < 6; i++) {
-		createRack(new Vector3(-2.5 + i * 1.0, 0, 3.5), 0, `rack ${rackId++}`);
-		createRack(new Vector3(-2.5 + i * 1.0, 0, 4.0), 0, `rack ${rackId++}`);
+		createRack(
+			new Vector3(-horizontalSpacing * 2.5 + i * horizontalSpacing, 0, 3.5),
+			0,
+			`rack ${rackId++}`
+		);
+		createRack(
+			new Vector3(
+				-horizontalSpacing * 2.5 + i * horizontalSpacing,
+				0,
+				3.5 + rackSize.depth + 0.1
+			),
+			0,
+			`rack ${rackId++}`
+		);
 	}
 };
 
