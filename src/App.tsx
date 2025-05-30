@@ -10,6 +10,7 @@ import {
 	Color3,
 	PointerEventTypes,
 } from '@babylonjs/core';
+import { AdvancedDynamicTexture, TextBlock, Rectangle } from '@babylonjs/gui';
 
 const UNIT = 0.3048;
 const rackSize = {
@@ -23,8 +24,12 @@ const createRackOutline = (
 	centerY: number,
 	rotated = false
 ) => {
-	const halfW = rotated ? rackSize.depth / 2 : rackSize.width / 2;
-	const halfD = rotated ? rackSize.width / 2 : rackSize.depth / 2;
+	const halfLong = rackSize.width / 2;
+	const halfShort = rackSize.depth / 2;
+
+	const halfW = rotated ? halfShort : halfLong;
+	const halfD = rotated ? halfLong : halfShort;
+
 	return [
 		new Vector3(centerX - halfW, centerY - halfD, 0),
 		new Vector3(centerX + halfW, centerY - halfD, 0),
@@ -79,13 +84,18 @@ export default function App() {
 		camera.orthoTop = zoom;
 		camera.orthoBottom = -zoom;
 
+		// rendering only wireframe outlines using MeshBuilder.CreateLineSystem on the XY plane (with z = 0) and a top-down orthographic camera, the light is technically not required.
 		const light = new HemisphericLight('light', new Vector3(0, 0, -1), scene);
+
+		const ui = AdvancedDynamicTexture.CreateFullscreenUI('UI', true, scene);
 
 		// 🧱 Rack placement (XY plane, Z=0)
 		const lines: Vector3[][] = [];
 		let rackId = 1;
 		const aisleGap = 1.2;
 		const pairGap = 0.1;
+
+		const labelCenters: { pos: Vector3; label: string }[] = [];
 
 		// Vertical racks: 3 columns of 3 rows of double racks (side-by-side with aisle)
 		const doubleRackGap = 0.1;
@@ -105,6 +115,14 @@ export default function App() {
 						true
 					)
 				); // left rack
+				labelCenters.push({
+					pos: new Vector3(
+						centerX - (rackSize.depth + doubleRackGap) / 2,
+						y,
+						0
+					),
+					label: `Rack ${rackId++}`,
+				});
 				lines.push(
 					createRackOutline(
 						centerX + (rackSize.depth + doubleRackGap) / 2,
@@ -112,7 +130,14 @@ export default function App() {
 						true
 					)
 				); // right rack
-				rackId += 2;
+				labelCenters.push({
+					pos: new Vector3(
+						centerX + (rackSize.depth + doubleRackGap) / 2,
+						y,
+						0
+					),
+					label: `Rack ${rackId++}`,
+				});
 			}
 		}
 
@@ -122,8 +147,15 @@ export default function App() {
 		for (let i = 0; i < 6; i++) {
 			const x = startX + i * (rackSize.width + pairGap);
 			lines.push(createRackOutline(x, baseY));
+			labelCenters.push({
+				pos: new Vector3(x, baseY, 0),
+				label: `Rack ${rackId++}`,
+			});
 			lines.push(createRackOutline(x, baseY + rackSize.depth + pairGap));
-			rackId += 2;
+			labelCenters.push({
+				pos: new Vector3(x, baseY + rackSize.depth + pairGap, 0),
+				label: `Rack ${rackId++}`,
+			});
 		}
 
 		const rackMesh = MeshBuilder.CreateLineSystem(
@@ -132,6 +164,38 @@ export default function App() {
 			scene
 		);
 		rackMesh.color = new Color3(0, 0, 0);
+
+		labelCenters.forEach(({ pos, label }) => {
+			const labelPlane = MeshBuilder.CreatePlane(
+				'labelPlane',
+				{
+					width: rackSize.depth,
+					height: rackSize.width / 2,
+				},
+				scene
+			);
+			labelPlane.position = pos;
+
+			const texture = AdvancedDynamicTexture.CreateForMesh(labelPlane);
+			const rect = new Rectangle();
+			rect.thickness = 0;
+			rect.background = 'transparent';
+
+			const text = new TextBlock();
+			text.text = label;
+			text.color = 'black';
+			text.fontSize = 42 * zoom;
+			text.textHorizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_CENTER;
+			text.textVerticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+
+			const rackNumber = parseInt(label.split(' ')[1], 10);
+			if (rackNumber <= 18) {
+				text.rotation = -Math.PI / 2;
+			}
+
+			rect.addControl(text);
+			texture.addControl(rect);
+		});
 	};
 
 	useEffect(() => {
