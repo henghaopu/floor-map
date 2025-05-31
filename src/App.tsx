@@ -11,6 +11,7 @@ import {
 	PointerEventTypes,
 } from '@babylonjs/core';
 import { AdvancedDynamicTexture, TextBlock, Rectangle } from '@babylonjs/gui';
+import { GroupOverlay } from './GroupOverlay';
 
 const UNIT = 0.3048;
 const rackSize = {
@@ -228,6 +229,7 @@ export default function App() {
 				onRender={() => {}}
 				style={{ width: '100vw', height: '100vh', display: 'block' }}
 			/>
+			<GroupOverlay scene={sceneRef.current} />
 			<div
 				style={{
 					position: 'absolute',
