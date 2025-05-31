@@ -43,6 +43,7 @@ const createRackOutline = (
 export default function App() {
 	const [zoom, setZoom] = useState(6);
 	const sceneRef = useRef<Scene | null>(null);
+	const [sceneReady, setSceneReady] = useState(false); // NEW
 
 	const onSceneReady = (scene: Scene) => {
 		sceneRef.current = scene;
@@ -197,6 +198,8 @@ export default function App() {
 			rect.addControl(text);
 			texture.addControl(rect);
 		});
+
+		setSceneReady(true); // Set ready AFTER everything is created
 	};
 
 	useEffect(() => {
@@ -229,7 +232,7 @@ export default function App() {
 				onRender={() => {}}
 				style={{ width: '100vw', height: '100vh', display: 'block' }}
 			/>
-			<GroupOverlay scene={sceneRef.current} />
+			{sceneReady && <GroupOverlay scene={sceneRef.current} />}
 			<div
 				style={{
 					position: 'absolute',

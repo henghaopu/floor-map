@@ -37,7 +37,6 @@ export function GroupOverlay({ scene }: { scene: Scene | null }) {
 			scene
 		);
 		mesh.color = new Color3(1, 0, 0);
-		scene.render(); // force render to show overlay immediately
 
 		return () => mesh.dispose();
 	}, [scene]);
