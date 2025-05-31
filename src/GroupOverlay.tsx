@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Scene, Vector3, MeshBuilder, Color3 } from '@babylonjs/core';
 
 // Draws a red outline grouping racks 20, 22, and 24
-export function GroupOverlay({ scene }: { scene: Scene | null }) {
+function GroupOverlay({ scene }: { scene: Scene | null }) {
 	useEffect(() => {
 		if (!scene) return;
 
@@ -43,3 +43,5 @@ export function GroupOverlay({ scene }: { scene: Scene | null }) {
 
 	return null;
 }
+
+export default GroupOverlay;

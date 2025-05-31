@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SceneComponent from 'babylonjs-hook';
 import {
 	Vector3,
 	UniversalCamera,
-	HemisphericLight,
+	// HemisphericLight,
 	Scene,
 	MeshBuilder,
 	Color4,
 	Color3,
-	PointerEventTypes,
 } from '@babylonjs/core';
 import { AdvancedDynamicTexture, TextBlock, Rectangle } from '@babylonjs/gui';
-import { GroupOverlay } from './GroupOverlay';
+import GroupOverlay from './GroupOverlay';
 
 const UNIT = 0.3048;
 const rackSize = {
@@ -87,14 +86,14 @@ export default function App() {
 		camera.orthoBottom = -zoom;
 
 		// rendering only wireframe outlines using MeshBuilder.CreateLineSystem on the XY plane (with z = 0) and a top-down orthographic camera, the light is technically not required.
-		const light = new HemisphericLight('light', new Vector3(0, 0, -1), scene);
+		// const light = new HemisphericLight('light', new Vector3(0, 0, -1), scene);
 
-		const ui = AdvancedDynamicTexture.CreateFullscreenUI('UI', true, scene);
+		// const ui = AdvancedDynamicTexture.CreateFullscreenUI('UI', true, scene);
 
 		// 🧱 Rack placement (XY plane, Z=0)
 		const lines: Vector3[][] = [];
 		let rackId = 1;
-		const aisleGap = 1.2;
+		// const aisleGap = 1.2;
 		const pairGap = 0.1;
 
 		const labelCenters: { pos: Vector3; label: string }[] = [];
